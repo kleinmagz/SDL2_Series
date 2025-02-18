@@ -32,6 +32,17 @@ SDL_Texture* loadTexture( std::string path );
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 
+/*
+	a renderer is an object that handles the rendering of 2d graphics to a window.
+	Think of a renderer as a "drawing engine" that takes care of the low-level detailed ot rendering
+	graphics. 
+
+	If you still feel dumb. 
+	"render" means to generate an image or a sequence of images from a set of data.
+
+	a "texture" is an object that represents a 3d image or surface that can e rendered to a window or a screen. a container of sorts that holds a 2d image.
+*/
+
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
@@ -50,12 +61,43 @@ bool init()
 		success = false;
 	}
 	else
-	{
+	{	
+		/*
+		a function that sets a hinting value for SDL.
+		Hints are used to control various aspects of SDL's behaviour such as: 
+			>Rendering
+			>Audio
+			>Input
+			>Video
+
+		kind of like preferences or setting that help a program work the way you want.
+		For example: when playing a game, you may want to make the graphics look better.
+		You might go to the game's settings and turn up the grapahics option. 
+		SDL_SetHint works the same way. kind of like assiging a value to a variable. 
+		*/
 		//Set texture filtering to linear
 		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
 		{
 			printf( "Warning: Linear texture filtering not enabled!" );
 		}
+		/*
+			linear texture filtering is a technique used in computer graphics to render textures
+			(images) on 3d objects or 2d surfaces. Its a way to interpolate (smooth out) the texture
+			pixels when they're stretched or shrunk. 
+
+			When a texture is applied to a surface, the graphics hardware needs to determine which 
+			texture pixels to use for each screen pixel. Linear texture filtering does this by: 
+
+				1. Taking teh four nearest texture pixels (2x2 neighbourhood)
+				2. Calculating a weighted average of these pixels based on their distance to teh screen
+						pixel. 
+				3. Using the avregae value as the final color for the screen pixel.
+
+			SDL_HINT_RENDER_SCALE_QUALITY - controles the quality of texture scaling when rendering.
+			"0" (fastest) nearest-neighbout interpolation (no smoothing).
+			"1" (default) linear interpolation (some smoothing). 
+			"2" (hights) Anisotropic filtering (higherst quality, most smoothing).
+		*/
 
 		//Create window
 		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
@@ -67,6 +109,8 @@ bool init()
 		else
 		{
 			//Create renderer for window
+			//Thik of this renderer as a "pointer" or a "handle" to the renderer engine.
+			//THink of this as well like this is where the office of the renderer is. hence the context.
 			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
 			if( gRenderer == NULL )
 			{
@@ -186,7 +230,10 @@ int main( int argc, char* args[] )
 						quit = true;
 					}
 				}
-
+				/*
+				In the main loop after the event loop, we call SDL_RenderClear. This function fills the 
+				screen with the color that was last set with SDL_SetRenderDrawColor.
+				*/
 				//Clear screen
 				SDL_RenderClear( gRenderer );
 
