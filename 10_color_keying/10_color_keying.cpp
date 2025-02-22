@@ -95,7 +95,17 @@ bool LTexture::loadFromFile( std::string path )
 	{
 		//Color key image
 		SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0, 0xFF, 0xFF ) );
-
+		/*
+			The reason for converting an RGB color to a 
+			format matching the surface using SDL_MapRGB() 
+			is to ensure that the color key value is 
+			correctly interpreted according to the pixel 
+			format of the SDL_Surface. Different surfaces 
+			may have different internal pixel formats (e.g.
+			, 8-bit, 16-bit, 24-bit, or 32-bit color depths), 
+			and the way colors are stored in memory depends 
+			on the format.
+		*/
 		//Create texture from surface pixels
         newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
 		if( newTexture == NULL )
@@ -207,14 +217,14 @@ bool loadMedia()
 	bool success = true;
 
 	//Load Foo' texture
-	if( !gFooTexture.loadFromFile( "10_color_keying/foo.png" ) )
+	if( !gFooTexture.loadFromFile( "./foo.png" ) )
 	{
 		printf( "Failed to load Foo' texture image!\n" );
 		success = false;
 	}
 	
 	//Load background texture
-	if( !gBackgroundTexture.loadFromFile( "10_color_keying/background.png" ) )
+	if( !gBackgroundTexture.loadFromFile( "./background.png" ) )
 	{
 		printf( "Failed to load background texture image!\n" );
 		success = false;
