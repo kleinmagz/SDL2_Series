@@ -30,6 +30,21 @@ class LTexture
 		//Renders texture at given point
 		void render( int x, int y, SDL_Rect* clip = NULL );
 
+		/*
+			Default Argument Convenience – Setting clip to NULL allows the function to be called without explicitly providing a clipping rectangle:
+
+
+			texture.render(100, 200);  // This will render the full texture at (100, 200)
+
+			But if you need to render a specific 
+			part of the texture, you can pass an 
+			SDL_Rect:
+
+
+			SDL_Rect clip = { 0, 0, 32, 32 };  // Only render a 32x32 section from the top-left
+			texture.render(100, 200, &clip);
+		*/
+
 		//Gets image dimensions
 		int getWidth();
 		int getHeight();
@@ -144,6 +159,16 @@ void LTexture::render( int x, int y, SDL_Rect* clip )
 
 	//Render to screen
 	SDL_RenderCopy( gRenderer, mTexture, clip, &renderQuad );
+
+	/*
+		 SDL automatically assumes that if you pass an 
+		 SDL_Rect* to srcrect in SDL_RenderCopy(), it 
+		 refers to the portion of the texture that you 
+		 want to render.
+
+		 int SDL_RenderCopy(SDL_Renderer* renderer, SDL_Texture* texture, 
+                   const SDL_Rect* srcrect, const SDL_Rect* dstrect);
+	*/
 }
 
 int LTexture::getWidth()
