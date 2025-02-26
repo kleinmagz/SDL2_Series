@@ -115,6 +115,9 @@ bool LTexture::loadFromFile( std::string path )
 		else
 		{
 			//Get image dimensions
+			//w and h are member variables of SDL_Surface.
+			//i.e. SDL_Surface::w, SDL_Surface::w
+			//same as *(loadedSurface).w *(loadedSurface).h
 			mWidth = loadedSurface->w;
 			mHeight = loadedSurface->h;
 		}
