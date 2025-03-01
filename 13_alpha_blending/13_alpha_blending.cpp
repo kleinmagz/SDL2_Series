@@ -30,6 +30,12 @@ class LTexture
 		//Set color modulation
 		void setColor( Uint8 red, Uint8 green, Uint8 blue );
 
+		//Set blending
+		void setBlendMode( SDL_BlendMode blending );
+
+		//Set alpha modulation
+		void setAlpha( Uint8 alpha );
+		
 		//Renders texture at given point
 		void render( int x, int y, SDL_Rect* clip = NULL );
 
@@ -61,8 +67,9 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
-//Scene texture
+//Scene textures
 LTexture gModulatedTexture;
+LTexture gBackgroundTexture;
 
 
 LTexture::LTexture()
@@ -134,8 +141,20 @@ void LTexture::free()
 
 void LTexture::setColor( Uint8 red, Uint8 green, Uint8 blue )
 {
-	//Modulate texture
+	//Modulate texture rgb
 	SDL_SetTextureColorMod( mTexture, red, green, blue );
+}
+
+void LTexture::setBlendMode( SDL_BlendMode blending )
+{
+	//Set blending function
+	SDL_SetTextureBlendMode( mTexture, blending );
+}
+		
+void LTexture::setAlpha( Uint8 alpha )
+{
+	//Modulate texture alpha
+	SDL_SetTextureAlphaMod( mTexture, alpha );
 }
 
 void LTexture::render( int x, int y, SDL_Rect* clip )
@@ -187,7 +206,7 @@ bool init()
 		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
-			printf( "Window could not be created! %s\n", SDL_GetError() );
+			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 			success = false;
 		}
 		else
@@ -223,10 +242,22 @@ bool loadMedia()
 	//Loading success flag
 	bool success = true;
 
-	//Load texture
-	if( !gModulatedTexture.loadFromFile( "./colors.png" ) )
+	//Load front alpha texture
+	if( !gModulatedTexture.loadFromFile( "./fadeout.png" ) )
 	{
-		printf( "Failed to load colors texture!\n" );
+		printf( "Failed to load front texture!\n" );
+		success = false;
+	}
+	else
+	{
+		//Set standard alpha blending
+		gModulatedTexture.setBlendMode( SDL_BLENDMODE_BLEND );
+	}
+
+	//Load background texture
+	if( !gBackgroundTexture.loadFromFile( "13_alpha_blending/fadein.png" ) )
+	{
+		printf( "Failed to load background texture!\n" );
 		success = false;
 	}
 	
@@ -237,6 +268,7 @@ void close()
 {
 	//Free loaded images
 	gModulatedTexture.free();
+	gBackgroundTexture.free();
 
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -271,12 +303,8 @@ int main( int argc, char* args[] )
 			//Event handler
 			SDL_Event e;
 
-			//Modulation components
-			//Uint8 btw is unsigned int 8
-			//contains 8 bits range(0 - 255)
-			Uint8 r = 255;
-			Uint8 g = 255;
-			Uint8 b = 255;
+			//Modulation component
+			Uint8 a = 255;
 
 			//While application is running
 			while( !quit )
@@ -289,40 +317,36 @@ int main( int argc, char* args[] )
 					{
 						quit = true;
 					}
-					//On keypress change rgb values
+					//Handle key presses
 					else if( e.type == SDL_KEYDOWN )
 					{
-						switch( e.key.keysym.sym )
+						//Increase alpha on w
+						if( e.key.keysym.sym == SDLK_w )
 						{
-							//Increase red
-							case SDLK_q:
-							r += 32;
-							break;
-							
-							//Increase green
-							case SDLK_w:
-							g += 32;
-							break;
-							
-							//Increase blue
-							case SDLK_e:
-							b += 32;
-							break;
-							
-							//Decrease red
-							case SDLK_a:
-							r -= 32;
-							break;
-							
-							//Decrease green
-							case SDLK_s:
-							g -= 32;
-							break;
-							
-							//Decrease blue
-							case SDLK_d:
-							b -= 32;
-							break;
+							//Cap if over 255
+							if( a + 32 > 255 )
+							{
+								a = 255;
+							}
+							//Increment otherwise
+							else
+							{
+								a += 32;
+							}
+						}
+						//Decrease alpha on s
+						else if( e.key.keysym.sym == SDLK_s )
+						{
+							//Cap if below 0
+							if( a - 32 < 0 )
+							{
+								a = 0;
+							}
+							//Decrement otherwise
+							else
+							{
+								a -= 32;
+							}
 						}
 					}
 				}
@@ -331,8 +355,11 @@ int main( int argc, char* args[] )
 				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 				SDL_RenderClear( gRenderer );
 
-				//Modulate and render texture
-				gModulatedTexture.setColor( r, g, b );
+				//Render background
+				gBackgroundTexture.render( 0, 0 );
+
+				//Render front blended
+				gModulatedTexture.setAlpha( a );
 				gModulatedTexture.render( 0, 0 );
 
 				//Update screen
