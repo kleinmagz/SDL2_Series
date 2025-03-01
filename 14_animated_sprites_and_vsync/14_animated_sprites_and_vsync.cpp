@@ -213,6 +213,58 @@ bool init()
 		else
 		{
 			//Create vsynced renderer for window
+			/*
+				For this (and future tutorials), we want to use 
+				Vertical Sync. VSync allows the rendering to 
+				update at the same time as when your monitor 
+				updates during vertical refresh. For this 
+				tutorial it will make sure the animation doesn't
+				run too fast. Most monitors run at about 60 
+				frames per second and that's the assumption 
+				we're making here. If you have a different 
+				monitor refresh rate, that would explain why the 
+				animation is running too fast or slow.
+
+				VSync (Vertical Synchronization) is a graphics 
+				technology that synchronizes the frame rate of 
+				a game (or any application) with the refresh 
+				rate of the monitor.
+
+				How VSync Works
+					Monitors refresh at a fixed rate 
+					(e.g., 60Hz = 60 frames per second).
+
+					Games can produce frames faster 
+					(e.g., 100+ FPS).
+
+					Without VSync, frames are sent to the screen 
+					as soon as they're ready, sometimes causing 
+					screen tearing (where two frames overlap).
+
+					With VSync enabled, rendering is limited to 
+					match the monitor’s refresh rate 
+					(e.g., locking at 60 FPS on a 60Hz monitor).
+
+
+					In this case, | is used to combine multiple 
+					flags (SDL_RENDERER_ACCELERATED and 
+					SDL_RENDERER_PRESENTVSYNC) into one value.
+
+					SDL uses bit flags, meaning each flag is a 
+					unique binary value. The bitwise OR (|) 
+					operator merges them together so that SDL 
+					can recognize both options.
+
+						0001  (SDL_RENDERER_ACCELERATED)
+					| 0010  (SDL_RENDERER_PRESENTVSYNC)
+					------
+  					0011  (Both options combined)
+
+					0011 (which is 3 in decimal) does not 
+					exist as a separate flag. Instead, 
+					SDL checks each individual bit to see 
+					which options are enabled.
+			*/
 			gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
 			if( gRenderer == NULL )
 			{
@@ -335,8 +387,27 @@ int main( int argc, char* args[] )
 				SDL_RenderClear( gRenderer );
 
 				//Render current frame
-				SDL_Rect* currentClip = &gSpriteClips[ frame / 4 ];
+				SDL_Rect* currentClip = &gSpriteClips[ frame / 16 ];
 				gSpriteSheetTexture.render( ( SCREEN_WIDTH - currentClip->w ) / 2, ( SCREEN_HEIGHT - currentClip->h ) / 2, currentClip );
+
+				/*
+					After the screen is cleared in the main loop, 
+					we want to render the current frame of 
+					animation.
+
+					The animation goes from frames 0 to 3. Since 
+					there are only 4 frames of animation, we want 
+					to slow down the animation a bit. This is why 
+					when we get the current clip sprite, we want 
+					to divide the frame by 4. This way the actual 
+					frame of animation only updates every 4 frames 
+					since with int data types 0 / 4 = 0, 1 / 4 = 0,
+					2 / 4 = 0, 3 / 4 = 0, 4 / 4 = 1, 5 / 4 = 1, etc.
+
+					After we get the current sprite, we want to 
+					render it to the screen and update the screen.
+				*/
+
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );
@@ -345,7 +416,7 @@ int main( int argc, char* args[] )
 				++frame;
 
 				//Cycle animation
-				if( frame / 4 >= WALKING_ANIMATION_FRAMES )
+				if( frame / 16 >= 4)//WALKING_ANIMATION_FRAMES )
 				{
 					frame = 0;
 				}
