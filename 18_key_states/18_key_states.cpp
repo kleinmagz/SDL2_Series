@@ -392,6 +392,31 @@ int main( int argc, char* args[] )
 					SDL's internal keystates are updated every time SDL_PollEvent 
 					is called, so make sure you polled all events on queue 
 					before checking key states
+
+
+					SDL_GetKeyBoardState() : 
+					Prototype:
+					const Uint8* SDL_GetKeyboardState(int* numkeys);
+
+					Parameters:
+					numkeys (optional): If not NULL, it will be set to 
+					the number of keys available on the keyboard.
+
+					Return Value:
+					Returns a pointer to an array of Uint8 values, 
+					where each element corresponds to a specific key.
+
+					1 means the key is currently pressed.
+
+					0 means the key is not pressed.
+
+					example:
+
+					const Uint8* keystate = SDL_GetKeyboardState(NULL);
+
+					if (keystate[SDL_SCANCODE_W]) {
+    				printf("W key is being held down\n");
+					}
 				*/
 
 				//Set texture based on current keystate
