@@ -85,6 +85,14 @@ Mix_Chunk *gHigh = NULL;
 Mix_Chunk *gMedium = NULL;
 Mix_Chunk *gLow = NULL;
 
+/*
+	The SDL_mixer data type for music is 
+	Mix_Music and one for short sounds is 
+	Mix_Chunk. Here we declare pointers for 
+	the music and sound effects we'll be 
+	using.
+*/
+
 
 LTexture::LTexture()
 {
@@ -283,6 +291,24 @@ bool init()
 				}
 
 				 //Initialize SDL_mixer
+				 /*
+				 	The first argument sets the sound frequency,
+					 and 44100 is a standard frequency that
+					  works on most systems. The second 
+						argument determines the sample format
+						, which again here we're using the 
+						default. The third argument is the 
+						number of hardware channels, 
+						and here we're using 2 channels 
+						for stereo. The last argument is the 
+						sample size, which determines the 
+						size of the chunks we use when 
+						playing sound. 2048 bytes 
+						(AKA 2 kilobyes) worked fine for 
+						me, but you may have to experiment 
+						with this value to minimize lag 
+						when playing sounds.
+				 */
 				if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
 				{
 					printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
@@ -416,6 +442,23 @@ int main( int argc, char* args[] )
 					{
 						switch( e.key.keysym.sym )
 						{
+							/*
+								For Mix_PlayChannel
+
+								The first argument is the channel 
+								you want to use to play it. Since 
+								we don't care which channel it 
+								comes out of, we set the channel 
+								to negative 1 which will use the 
+								nearest available channel. The 
+								second argument is the sound 
+								effect and last argument is the 
+								number of times to repeat the 
+								effect. We only want it to play 
+								once per button press, so we have 
+								it repeat 0 times.
+							*/
+
 							//Play high sound effect
 							case SDLK_1:
 							Mix_PlayChannel( -1, gHigh, 0 );
@@ -460,6 +503,25 @@ int main( int argc, char* args[] )
 								}
 							}
 							break;
+
+							/*
+								When the 9 key pressed we first check 
+								if the music is not playing with 
+								Mix_PlayingMusic. If it isn't, we 
+								start the music with Mix_PlayMusic. 
+								The first argument is the music we 
+								want to play and the last argument is 
+								the number of times to repeat it. 
+								Negative 1 is a special value saying 
+								we want to loop it until it is stopped.
+
+								If there is music playing, we check if 
+								the music is paused using Mix_PausedMusic. 
+								If the music is paused, we resume it 
+								using Mix_ResumeMusic. If the music is 
+								not paused we pause it using 
+								Mix_PauseMusic.
+							*/
 							
 							case SDLK_0:
 							//Stop the music
